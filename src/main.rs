@@ -15,13 +15,13 @@ fn main() {
     [0.021620918, -0.19883351,  1.177143],
   ];
 
-  let mut inb = vec![0.0 as f32; num_pixels*3];
-  let mut out = vec![0.0 as f32; num_pixels*3];
+  let mut inb = vec![0f32; num_pixels*3];
+  let mut out = vec![0f32; num_pixels*3];
 
   // Fill in the input buffer with different rgb values
-  let mut r = 0.0 as f32;
-  let mut g = 0.0 as f32;
-  let mut b = 0.0 as f32;
+  let mut r = 0f32;
+  let mut g = 0f32;
+  let mut b = 0f32;
   for pix in inb.chunks_mut(3) {
     r = incr(r, 0.01);
     g = incr(g, 0.02);
@@ -45,7 +45,7 @@ fn main() {
   let to_time = time::precise_time_ns();
 
   // Calculate the pixel average
-  let mut sum = 0.0 as f32;
+  let mut sum = 0f32;
   for v in out {
     sum += v;
   }
