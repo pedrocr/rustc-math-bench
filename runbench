@@ -1,0 +1,51 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+
+SLEEP_BETWEEN_RUNS=5
+BINDIR="./target/bins/"
+
+FileUtils.mkdir_p BINDIR
+
+def runsys(cmd)
+  puts cmd
+  if !system(cmd)
+    $stderr.puts "ERROR running command"
+    exit 2
+  end
+end
+
+bins = []
+
+{
+  "base"         => "-O3", 
+  "march-native" => "-O3 -march=native",
+  "ffast-math"   => "-O3 -march=native -ffast-math",
+}.each do |name, opts|
+  bench = "#{BINDIR}/clangbench-#{name}"
+  if !File.exist?(bench)
+    puts "Compiling #{bench}"
+    runsys "clang #{opts} test.c -o #{bench}"
+  end
+  bins << bench
+end
+
+{
+  "base"         => "", 
+  "march-native" => "-C target-cpu=native",
+# Don't know how to do ffast-math in rust yet
+#  "ffast-math"   => "-C target-cpu=native -C ",
+}.each do |name, opts|
+  bench = "#{BINDIR}/rustbench-#{name}"
+  if !File.exist?(bench)
+    puts "Compiling #{bench}"
+    runsys "RUSTFLAGS=\"#{opts}\" cargo +nightly build --release"
+    FileUtils.cp "./target/release/rustc-math-bench", bench
+  end
+  bins << bench
+end
+
+bins.each do |bin|
+  sleep SLEEP_BETWEEN_RUNS
+  runsys bin
+end
