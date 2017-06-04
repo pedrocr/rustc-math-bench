@@ -29,6 +29,13 @@ bins = []
     runsys "clang #{opts} test.c -o #{bench}"
   end
   bins << bench
+
+  bench = "#{BINDIR}/gccbench-#{name}"
+  if !File.exist?(bench)
+    puts "Compiling #{bench}"
+    runsys "gcc #{opts} test.c -o #{bench}"
+  end
+  bins << bench
 end
 
 {
