@@ -9,4 +9,4 @@ https://github.com/rust-lang/rust/issues/42432
 Contributing
 ------------
 
-Feel free to send pull requests if you have a better idea how to benchmark at https://github.com/pedrocr/chimper
+Feel free to send pull requests if you have a better idea how to benchmark at https://github.com/pedrocr/rustc-math-bench
