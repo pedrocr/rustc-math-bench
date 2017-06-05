@@ -1,4 +1,6 @@
 extern crate time;
+extern crate simd;
+use simd::f32x4;
 
 fn incr(val: f32, incr: f32) -> f32 {
   let newval = val+incr;
@@ -45,14 +47,34 @@ fn main() {
     pixout[2] = r * matrix[2][0] + g * matrix[2][1] + b * matrix[2][2] + e * matrix[2][3];
   }
   let to_time = time::precise_time_ns();
-
-  // Calculate the pixel average
   let mut sum = 0f32;
   for v in out {
     sum += v;
   }
+  println!("{:.2} ms/megapixel (sum is {})",
+         ((to_time - from_time) as f32)/((num_pixels as f32)),
+         sum);
 
-  println!("{:.2} ms/megapixel (sum is {})", 
+  let mut out = vec![0f32; num_pixels*3];
+  let from_time = time::precise_time_ns();
+  let x_rgb = f32x4::load(&matrix[0], 0);
+  let y_rgb = f32x4::load(&matrix[1], 0);
+  let z_rgb = f32x4::load(&matrix[2], 0);
+  for (pixin, pixout) in inb.chunks(4).zip(out.chunks_mut(3)) {
+    let rgb = f32x4::load(&pixin, 0);
+    let x_comps = rgb * x_rgb;
+    let y_comps = rgb * y_rgb;
+    let z_comps = rgb * z_rgb;
+    pixout[0] = x_comps.extract(0) + x_comps.extract(1) + x_comps.extract(2);
+    pixout[1] = y_comps.extract(0) + y_comps.extract(1) + y_comps.extract(2);
+    pixout[2] = z_comps.extract(0) + z_comps.extract(1) + z_comps.extract(2);
+  }
+  let to_time = time::precise_time_ns();
+  let mut sum = 0f32;
+  for v in out {
+    sum += v;
+  }
+  println!("{:.2} ms/megapixel (sum is {}) (explicit simd)",
          ((to_time - from_time) as f32)/((num_pixels as f32)),
          sum);
 }
