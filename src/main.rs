@@ -1,3 +1,9 @@
+#![feature(proc_macro)]
+#![feature(target_feature)]
+#![feature(const_fn)]
+extern crate runtime_target_feature;
+use runtime_target_feature::runtime_target_feature;
+
 extern crate time;
 extern crate simd;
 use simd::f32x4;
@@ -8,6 +14,7 @@ fn incr(val: f32, incr: f32) -> f32 {
   if newval > 1.0 { 0.0 } else { newval }
 }
 
+#[runtime_target_feature("+avx2")]
 fn main() {
   let num_pixels = 100000000; // 100MP image
   // CAM to RGB matrix taken from the Sony A77V
