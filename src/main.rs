@@ -47,9 +47,9 @@ fn main() {
     pixout[2] = r * matrix[2][0] + g * matrix[2][1] + b * matrix[2][2] + e * matrix[2][3];
   }
   let to_time = time::precise_time_ns();
-  let mut sum = 0f32;
+  let mut sum = 0f64;
   for v in out {
-    sum += v;
+    sum += v as f64;
   }
   println!("{:.2} ms/megapixel (sum is {})",
          ((to_time - from_time) as f32)/((num_pixels as f32)),
@@ -70,9 +70,9 @@ fn main() {
     pixout[2] = z_comps.extract(0) + z_comps.extract(1) + z_comps.extract(2);
   }
   let to_time = time::precise_time_ns();
-  let mut sum = 0f32;
+  let mut sum = 0f64;
   for v in out {
-    sum += v;
+    sum += v as f64;
   }
   println!("{:.2} ms/megapixel (sum is {}) (explicit simd)",
          ((to_time - from_time) as f32)/((num_pixels as f32)),

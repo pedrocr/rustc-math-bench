@@ -56,7 +56,7 @@ int main(void) {
   int64_t to_time = time_in_micros();
 
   // Calculate the pixel average
-  float sum = 0.0f;
+  double sum = 0.0f;
   for(int i=0; i<NUM_PIXELS*3; i++) {
     sum += out[i];
   }

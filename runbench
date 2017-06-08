@@ -20,8 +20,7 @@ bins = []
 {
   "base"         => "-O3", 
   "march-native" => "-O3 -march=native",
-# Fast math seems to return broken results and not be a benefit
-#  "ffast-math"   => "-O3 -march=native -ffast-math",
+  "ffast-math"   => "-O3 -march=native -ffast-math",
 }.each do |name, opts|
   bench = "#{BINDIR}/clangbench-#{name}"
   if !File.exist?(bench)
