@@ -40,12 +40,13 @@ end
 {
   "base"         => "", 
   "march-native" => "-C target-cpu=native",
-# Don't know how to do ffast-math in rust yet
-#  "ffast-math"   => "-C target-cpu=native -C ",
+# This should work but doesn't seem to
+#  "ffast-math"   => "-C target-cpu=native -C llvm-args=\"-ffast-math\"",
 }.each do |name, opts|
   bench = "#{BINDIR}/rustbench-#{name}"
   if !File.exist?(bench)
     puts "Compiling #{bench}"
+    FileUtils.rm_fr "./target/release/"
     runsys "RUSTFLAGS=\"#{opts}\" cargo +nightly build --release"
     FileUtils.cp "./target/release/rustc-math-bench", bench
   end
