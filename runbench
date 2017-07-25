@@ -46,7 +46,7 @@ end
   bench = "#{BINDIR}/rustbench-#{name}"
   if !File.exist?(bench)
     puts "Compiling #{bench}"
-    FileUtils.rm_fr "./target/release/"
+    FileUtils.rm_rf "./target/release/"
     runsys "RUSTFLAGS=\"#{opts}\" cargo +nightly build --release"
     FileUtils.cp "./target/release/rustc-math-bench", bench
   end
