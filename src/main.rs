@@ -84,4 +84,31 @@ fn main() {
   println!("{:.2} ms/megapixel (sum is {}) (explicit simd)",
          ((to_time - from_time) as f32)/((num_pixels as f32)),
          sum);
+
+  let mut out = vec![0f32; num_pixels*3];
+  let from_time = time::precise_time_ns();
+  unsafe {
+    for i in 0..num_pixels {
+      let inp = i * 4;
+      let x0 = *inb.get_unchecked(inp + 0);
+      let x1 = *inb.get_unchecked(inp + 1);
+      let x2 = *inb.get_unchecked(inp + 2);
+      let x3 = *inb.get_unchecked(inp + 3);
+      let o0 = x0 * matrix[0][0] + x1 * matrix[0][1] + x2 * matrix[0][2] + x3 * matrix[0][3];
+      let o1 = x0 * matrix[1][0] + x1 * matrix[1][1] + x2 * matrix[1][2] + x3 * matrix[1][3];
+      let o2 = x0 * matrix[2][0] + x1 * matrix[2][1] + x2 * matrix[2][2] + x3 * matrix[2][3];
+      let outp = i * 3;
+      *out.get_unchecked_mut(outp + 0) = o0;
+      *out.get_unchecked_mut(outp + 1) = o1;
+      *out.get_unchecked_mut(outp + 2) = o2;
+    }
+  }
+  let to_time = time::precise_time_ns();
+  let mut sum = 0f64;
+  for v in out {
+    sum += v as f64;
+  }
+  println!("{:.2} ms/megapixel (sum is {}) unidiomatic",
+         ((to_time - from_time) as f32)/((num_pixels as f32)),
+         sum);
 }
