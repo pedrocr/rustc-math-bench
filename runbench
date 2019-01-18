@@ -20,21 +20,21 @@ bins = []
 {
   "base"         => "-O3", 
   "march-native" => "-O3 -march=native",
-  "ffast-math"   => "-O3 -march=native -ffast-math",
+  "march-native-ffast-math"   => "-O3 -march=native -ffast-math",
 }.each do |name, opts|
   bench = "#{BINDIR}/clangbench-#{name}"
   if !File.exist?(bench)
     puts "Compiling #{bench}"
     runsys "clang #{opts} test.c -o #{bench}"
   end
-  bins << bench
+  bins << ["clang #{name}", bench]
 
   bench = "#{BINDIR}/gccbench-#{name}"
   if !File.exist?(bench)
     puts "Compiling #{bench}"
     runsys "gcc #{opts} test.c -o #{bench}"
   end
-  bins << bench
+  bins << ["gcc #{name}", bench]
 end
 
 {
@@ -50,10 +50,14 @@ end
     runsys "RUSTFLAGS=\"#{opts}\" cargo +nightly build --release"
     FileUtils.cp "./target/release/rustc-math-bench", bench
   end
-  bins << bench
+  bins << ["rustc #{name}", bench]
 end
 
 bins.each do |bin|
   sleep SLEEP_BETWEEN_RUNS
-  runsys bin
+  puts "=> #{bin[0]}"
+  if !system(bin[1])
+    $stderr.puts "ERROR running benchmark"
+    exit 2
+  end
 end
