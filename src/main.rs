@@ -1,12 +1,10 @@
-#![feature(proc_macro)]
-#![feature(target_feature)]
 #![feature(const_fn)]
-extern crate runtime_target_feature;
-use runtime_target_feature::runtime_target_feature;
+//extern crate runtime_target_feature;
+//use runtime_target_feature::runtime_target_feature;
 
 extern crate time;
-extern crate simd;
-use simd::f32x4;
+//extern crate simd;
+//use simd::f32x4;
 
 fn incr(val: f32, incr: f32) -> f32 {
   let newval = val+incr;
@@ -14,7 +12,7 @@ fn incr(val: f32, incr: f32) -> f32 {
   if newval > 1.0 { 0.0 } else { newval }
 }
 
-#[runtime_target_feature("+avx2")]
+//#[runtime_target_feature("+avx2")]
 fn main() {
   let num_pixels = 100000000; // 100MP image
   // CAM to RGB matrix taken from the Sony A77V
@@ -64,26 +62,47 @@ fn main() {
 
   let mut out = vec![0f32; num_pixels*3];
   let from_time = time::precise_time_ns();
-  let x_rgb = f32x4::load(&matrix[0], 0);
-  let y_rgb = f32x4::load(&matrix[1], 0);
-  let z_rgb = f32x4::load(&matrix[2], 0);
-  for (pixin, pixout) in inb.chunks(4).zip(out.chunks_mut(3)) {
-    let rgb = f32x4::load(&pixin, 0);
-    let x_comps = rgb * x_rgb;
-    let y_comps = rgb * y_rgb;
-    let z_comps = rgb * z_rgb;
-    pixout[0] = x_comps.extract(0) + x_comps.extract(1) + x_comps.extract(2);
-    pixout[1] = y_comps.extract(0) + y_comps.extract(1) + y_comps.extract(2);
-    pixout[2] = z_comps.extract(0) + z_comps.extract(1) + z_comps.extract(2);
+  for (pixin, pixout) in inb.chunks_exact(4).zip(out.chunks_exact_mut(3)) {
+    let r = pixin[0];
+    let g = pixin[1];
+    let b = pixin[2];
+    let e = pixin[3];
+
+    pixout[0] = r * matrix[0][0] + g * matrix[0][1] + b * matrix[0][2] + e * matrix[0][3];
+    pixout[1] = r * matrix[1][0] + g * matrix[1][1] + b * matrix[1][2] + e * matrix[1][3];
+    pixout[2] = r * matrix[2][0] + g * matrix[2][1] + b * matrix[2][2] + e * matrix[2][3];
   }
   let to_time = time::precise_time_ns();
   let mut sum = 0f64;
   for v in out {
     sum += v as f64;
   }
-  println!("{:.2} ms/megapixel (sum is {}) (explicit simd)",
+  println!("{:.2} ms/megapixel (sum is {}) (chunks_exact)",
          ((to_time - from_time) as f32)/((num_pixels as f32)),
          sum);
+
+//  let mut out = vec![0f32; num_pixels*3];
+//  let from_time = time::precise_time_ns();
+//  let x_rgb = f32x4::load(&matrix[0], 0);
+//  let y_rgb = f32x4::load(&matrix[1], 0);
+//  let z_rgb = f32x4::load(&matrix[2], 0);
+//  for (pixin, pixout) in inb.chunks(4).zip(out.chunks_mut(3)) {
+//    let rgb = f32x4::load(&pixin, 0);
+//    let x_comps = rgb * x_rgb;
+//    let y_comps = rgb * y_rgb;
+//    let z_comps = rgb * z_rgb;
+//    pixout[0] = x_comps.extract(0) + x_comps.extract(1) + x_comps.extract(2);
+//    pixout[1] = y_comps.extract(0) + y_comps.extract(1) + y_comps.extract(2);
+//    pixout[2] = z_comps.extract(0) + z_comps.extract(1) + z_comps.extract(2);
+//  }
+//  let to_time = time::precise_time_ns();
+//  let mut sum = 0f64;
+//  for v in out {
+//    sum += v as f64;
+//  }
+//  println!("{:.2} ms/megapixel (sum is {}) (explicit simd)",
+//         ((to_time - from_time) as f32)/((num_pixels as f32)),
+//         sum);
 
   let mut out = vec![0f32; num_pixels*3];
   let from_time = time::precise_time_ns();
@@ -108,7 +127,7 @@ fn main() {
   for v in out {
     sum += v as f64;
   }
-  println!("{:.2} ms/megapixel (sum is {}) unidiomatic",
+  println!("{:.2} ms/megapixel (sum is {}) (unidiomatic)",
          ((to_time - from_time) as f32)/((num_pixels as f32)),
          sum);
 }

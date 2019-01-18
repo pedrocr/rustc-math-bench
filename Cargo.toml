@@ -5,6 +5,6 @@ authors = ["Pedro Côrte-Real <pedro@pedrocr.net>"]
 
 [dependencies]
 time = "0.1.37"
-simd = "0.2.0"
-runtime-target-feature = { git = 'https://github.com/parched/runtime-target-feature-rs', branch='master'}
-runtime-target-feature-rt = { git = 'https://github.com/parched/runtime-target-feature-rt-rs', branch='master'}
+#simd = "0.2.0"
+#runtime-target-feature = { git = 'https://github.com/parched/runtime-target-feature-rs', branch='master'}
+#runtime-target-feature-rt = { git = 'https://github.com/parched/runtime-target-feature-rt-rs', branch='master'}
